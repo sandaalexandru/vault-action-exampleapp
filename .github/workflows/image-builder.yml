@@ -10,22 +10,8 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v3 
 
-        # - name: Vault health & KV diagnostics
-        #   run: |
-        #     set -euo pipefail
-        #     echo "Checking Vault health..." 
-        #     curl -s -o /dev/null -w "Health HTTP %{http_code}\n" http://127.0.0.1:8200/v1/sys/health || echo "Health endpoint unreachable"
-        #     echo "Detecting if KV v2 (metadata endpoint)..." 
-        #     METADATA_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "X-Vault-Token: ${{ secrets.VAULT_TOKEN }}" http://127.0.0.1:8200/v1/secret/metadata/ci || true)
-        #     echo "secret/metadata/ci => HTTP ${METADATA_CODE}" 
-        #     if [ "$METADATA_CODE" = "404" ]; then
-        #       echo "KV v2 metadata path not found; repository may be using KV v1 (try path 'secret/ci')." 
-        #     fi
-        #     echo "(Non-200 here is informational; continuing.)"
-        #   env:
-        #     VAULT_ADDR: http://127.0.0.1:8200
-
         - name: Import Secrets
+          id: vault
           uses: hashicorp/vault-action@v2
           with:
             url: http://127.0.0.1:8200
@@ -34,3 +20,19 @@ jobs:
             token: ${{ secrets.VAULT_TOKEN }}
             secrets: |
               secret/data/ci app_secret
+
+        - name: Verify Vault secrets loaded
+          run: |
+              check() {
+              local v=\"$1\"
+              local val=\"${!v:-}\"
+              if [ -n \"$val\" ]; then
+                  echo \"$v: present (length=${#val})\"
+              else
+                  echo \"$v: NOT SET\"
+              fi
+              }
+              for v in APP_SECRET; do
+              check \"$v\"
+              done
+
