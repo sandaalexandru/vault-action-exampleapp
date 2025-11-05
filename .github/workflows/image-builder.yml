@@ -23,16 +23,12 @@ jobs:
 
         - name: Verify Vault secrets loaded
           run: |
-              check() {
-              local v=\"$1\"
-              local val=\"${!v:-}\"
-              if [ -n \"$val\" ]; then
-                  echo \"$v: present (length=${#val})\"
-              else
-                  echo \"$v: NOT SET\"
-              fi
-              }
+              set -euo pipefail
               for v in APP_SECRET; do
-              check \"$v\"
+                val="${!v:-}"
+                if [ -n "$val" ]; then
+                  echo "$v: present (length=${#val})"
+                else
+                  echo "$v: NOT SET"
+                fi
               done
-
