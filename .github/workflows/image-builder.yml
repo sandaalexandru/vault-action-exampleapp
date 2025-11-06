@@ -27,14 +27,14 @@ jobs:
             secrets: |
               secret/data/ci app_secret
 
-        - name: Verify Vault secrets loaded
-          run: |
-              set -euo pipefail
-              for v in APP_SECRET; do
-                val="${!v:-}"
-                if [ -n "$val" ]; then
-                  echo "$v: present (length=${#val})"
-                else
-                  echo "$v: NOT SET"
-                fi
-              done
+        # - name: Verify Vault secrets loaded
+        #   run: |
+        #       set -euo pipefail
+        #       for v in APP_SECRET; do
+        #         val="${!v:-}"
+        #         if [ -n "$val" ]; then
+        #           echo "$v: present (length=${#val})"
+        #         else
+        #           echo "$v: NOT SET"
+        #         fi
+        #       done
