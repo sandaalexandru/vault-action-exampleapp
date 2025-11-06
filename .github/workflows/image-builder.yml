@@ -2,6 +2,10 @@ name: ImageBuilder
 # Run this workflow every time a new commit pushed to your repository
 on: push
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     name: Retrieve Secrets from Vault
@@ -15,9 +19,11 @@ jobs:
           uses: hashicorp/vault-action@v2
           with:
             url: http://127.0.0.1:8200
+            method: jwt
+            role: gh-actions
             tlsSkipVerify: true
             # Removed preceding backslash so GitHub evaluates the expression and passes the real token
-            token: ${{ secrets.VAULT_TOKEN }}
+            #token: ${{ secrets.VAULT_TOKEN }}
             secrets: |
               secret/data/ci app_secret
 
