@@ -28,14 +28,22 @@ jobs:
             secrets: |
               secret/data/ci app_secret
 
-        # - name: Verify Vault secrets loaded
-        #   run: |
-        #       set -euo pipefail
-        #       for v in APP_SECRET; do
-        #         val="${!v:-}"
-        #         if [ -n "$val" ]; then
-        #           echo "$v: present (length=${#val})"
-        #         else
-        #           echo "$v: NOT SET"
-        #         fi
-        #       done
+        - name: Verify Vault secrets loaded
+          run: |
+              set -euo pipefail
+              for v in APP_SECRET; do
+                val="${!v:-}"
+                if [ -n "$val" ]; then
+                  echo "$v: present (length=${#val})"
+                else
+                  echo "$v: NOT SET"
+                fi
+              done
+
+        - name: Show GitHub OIDC token claims
+          run: |
+            ID_TOKEN=$(curl -sLS "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com" -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN")
+            echo "$ID_TOKEN" | cut -d. -f2 | base64 -d | jq .
+          env:
+            ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+            ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
