@@ -20,6 +20,7 @@ jobs:
           with:
             url: http://127.0.0.1:8200
             method: jwt
+            jwtGithubAudience: https://github.com
             role: gh-actions
             tlsSkipVerify: true
             # Removed preceding backslash so GitHub evaluates the expression and passes the real token
